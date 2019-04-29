@@ -7,20 +7,55 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.RecyclerView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import pk.edu.itcg.roomtodo.R;
+import pk.edu.itcg.roomtodo.adapter.NoteAdapter;
+import pk.edu.itcg.roomtodo.model.Note;
+import pk.edu.itcg.roomtodo.view.model.NoteViewModel;
 
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    private NoteAdapter mNoteAdapter;
+    private NoteViewModel mNoteViewModel;
+
+    @BindView(R.id.rv_notes)
+    public RecyclerView mNotesRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ButterKnife.bind(MainActivity.this);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //Init Adpter
+        mNoteAdapter = new NoteAdapter();
+        mNotesRecyclerView.setAdapter(mNoteAdapter);
+
+        //Init ViewModel instance
+        mNoteViewModel = ViewModelProviders.of(MainActivity.this)
+                .get(NoteViewModel.class);
+
+        mNoteViewModel.getAllNotes().observe(MainActivity.this,
+                notes -> {
+                    //Update RecyclerView data
+                    mNoteAdapter.setAllNotes(notes);
+                });
+
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
